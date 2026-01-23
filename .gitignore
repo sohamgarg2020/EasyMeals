@@ -2,3 +2,4 @@ cv_env/
 dataset/
 *.zip
 *.pt
+backend/.env

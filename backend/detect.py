@@ -4,37 +4,38 @@ from ultralytics import YOLO
 import numpy as np
 from collections import Counter
 
-
-
-
 FOOD_CLASSES = ['apple','banana','orange','broccoli','carrot','sandwich','pizza','cake','donut','hot dog','bowl','cup','wine glass','spoon','fork','knife', 'bottle']
-
 
 model = YOLO('yolov8m.pt')
 
-
-
 def ingredient_list(img_path):
-
+    """
+    Detect food ingredients in an image
+    
+    Args:
+        img_path: Path to the image file
+        
+    Returns:
+        Counter object with detected ingredients and their counts
+    """
     img = cv2.imread(img_path)
+    
+    if img is None:
+        print(f"Error: Could not read image from {img_path}")
+        return Counter()
+    
     img = cv2.convertScaleAbs(img, alpha=1.2, beta=20)
 
-    results = model(img, conf = 0.15, imgsz=1024)
-
+    results = model(img, conf=0.15, imgsz=1024)
 
     annotated_frame = results[0].plot()
 
-    cv2.imshow("Detections:", annotated_frame)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
     detected = Counter([model.names[int(box.cls)] for r in results for box in r.boxes])
 
+    # Filter to only food classes
     for key in list(detected.keys()):
         if key not in FOOD_CLASSES:
             del detected[key]
 
-    print(detected)
+    print(f"Detected ingredients: {detected}")
     return detected
-
-
